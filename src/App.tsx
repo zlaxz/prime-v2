@@ -8,6 +8,7 @@ import FocusMode from "@/pages/FocusMode";
 import InboxTriage from "@/pages/InboxTriage";
 import Chat from "@/pages/Chat";
 import Settings from "@/pages/Settings";
+import Activity from "@/pages/Activity";
 import EmailCallback from "@/pages/EmailCallback";
 import CalendarCallback from "@/pages/CalendarCallback";
 
@@ -17,7 +18,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-zinc-900">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-purple-500 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "var(--arc-reactor-accent)", borderTopColor: "transparent" }} />
       </div>
     );
   }
@@ -45,6 +46,7 @@ export default function App() {
                   <Route path="/inbox" element={<InboxTriage />} />
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/activity" element={<Activity />} />
                 </Routes>
               </AppShell>
             </ProtectedRoute>

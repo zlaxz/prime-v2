@@ -2,11 +2,14 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useActionInbox, type ActionItem } from "@/hooks/useActionInbox";
 import { useProjects } from "@/hooks/useProjects";
+import { useContextLog } from "@/hooks/useContextLog";
 import TaskCard from "@/components/TaskCard";
 import TaskDetailDialog from "@/components/TaskDetailDialog";
 import QuickAddDialog from "@/components/QuickAddDialog";
 import QuickCapture from "@/components/QuickCapture";
 import TimeAwarenessBar from "@/components/TimeAwarenessBar";
+import DailyBriefing from "@/components/DailyBriefing";
+import ActivityFeed from "@/components/ActivityFeed";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus, Inbox, Target } from "lucide-react";
@@ -22,6 +25,7 @@ const STATUS_COLUMNS = [
 export default function CommandCenter() {
   const { items, loading, createItem, updateItem } = useActionInbox();
   const { projects } = useProjects();
+  const { events } = useContextLog(10);
   const [selectedItem, setSelectedItem] = useState<ActionItem | null>(null);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [dragItem, setDragItem] = useState<string | null>(null);
@@ -143,6 +147,23 @@ export default function CommandCenter() {
           >
             <Plus className="mr-1 h-4 w-4" /> Add
           </Button>
+        </div>
+
+        {/* Daily Briefing + Activity */}
+        <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <DailyBriefing />
+          {events.length > 0 && (
+            <div
+              className="rounded-lg p-4"
+              style={{
+                backgroundColor: "rgba(0, 217, 255, 0.03)",
+                border: "1px solid rgba(0, 217, 255, 0.15)",
+              }}
+            >
+              <h3 className="mb-2 text-sm font-medium arc-reactor-glow-text">Recent Activity</h3>
+              <ActivityFeed limit={5} compact />
+            </div>
+          )}
         </div>
 
         {/* Today's Plate */}

@@ -18,7 +18,8 @@ import UrgencyBadge from "@/components/UrgencyBadge";
 import type { ActionItem } from "@/hooks/useActionInbox";
 import type { Project } from "@/hooks/useProjects";
 import { useState } from "react";
-import { Mail, Calendar, MessageSquare, Pencil, ExternalLink } from "lucide-react";
+import { Mail, Calendar, MessageSquare, Pencil, ExternalLink, Scissors, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const sourceIcons: Record<string, React.ElementType> = {
   gmail: Mail,
@@ -38,6 +39,8 @@ type Props = {
 export default function TaskDetailDialog({ item, projects, open, onOpenChange, onUpdate }: Props) {
   const [whereLeftOff, setWhereLeftOff] = useState(item?.where_i_left_off ?? "");
   const [saving, setSaving] = useState(false);
+  const [microSteps, setMicroSteps] = useState<string[]>([]);
+  const [decomposing, setDecomposing] = useState(false);
 
   if (!item) return null;
 
@@ -93,11 +96,65 @@ export default function TaskDetailDialog({ item, projects, open, onOpenChange, o
           )}
 
           {item.smallest_first_step && (
-            <div className="rounded-md bg-purple-500/10 p-3">
-              <p className="text-xs font-medium text-purple-400">Start here</p>
-              <p className="mt-1 text-sm text-zinc-200">{item.smallest_first_step}</p>
+            <div className="rounded-md p-3" style={{ backgroundColor: "rgba(0, 217, 255, 0.08)" }}>
+              <p className="text-xs font-medium" style={{ color: "var(--arc-reactor-accent)" }}>Start here</p>
+              <p className="mt-1 text-sm" style={{ color: "var(--arc-reactor-text)" }}>{item.smallest_first_step}</p>
             </div>
           )}
+
+          {/* Task Decomposition */}
+          <div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="arc-reactor-button text-xs"
+              disabled={decomposing}
+              onClick={async () => {
+                setDecomposing(true);
+                try {
+                  const res = await fetch(
+                    "https://esnfzdpevddzgckwidgf.supabase.co/functions/v1/decompose-task",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        taskTitle: item.title,
+                        taskType: item.action_type ?? "general",
+                        estimatedMinutes: item.estimated_minutes ?? 30,
+                      }),
+                    }
+                  );
+                  if (!res.ok) throw new Error("Decompose failed");
+                  const data = await res.json();
+                  const steps = data.steps?.map((s: any) => s.title ?? s.step ?? s) ?? [];
+                  setMicroSteps(steps);
+                } catch {
+                  toast.error("Failed to decompose task");
+                } finally {
+                  setDecomposing(false);
+                }
+              }}
+            >
+              {decomposing ? (
+                <><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Breaking down...</>
+              ) : (
+                <><Scissors className="mr-1 h-3 w-3" /> Break into micro-steps</>
+              )}
+            </Button>
+            {microSteps.length > 0 && (
+              <div className="mt-2 space-y-1.5 rounded-md p-3" style={{ backgroundColor: "rgba(0, 217, 255, 0.05)", border: "1px solid rgba(0, 217, 255, 0.1)" }}>
+                <p className="text-xs font-medium" style={{ color: "var(--arc-reactor-accent)" }}>Micro-steps (~5 min each)</p>
+                {microSteps.map((step, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs" style={{ color: "var(--arc-reactor-text)" }}>
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold" style={{ backgroundColor: "rgba(0, 217, 255, 0.15)", color: "var(--arc-reactor-accent)" }}>
+                      {i + 1}
+                    </span>
+                    <span>{step}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           {item.work_url && (
             <a

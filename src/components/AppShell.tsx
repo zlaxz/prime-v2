@@ -8,6 +8,7 @@ import {
   Inbox,
   MessageSquare,
   Settings,
+  Activity,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -20,6 +21,7 @@ const navItems = [
   { path: "/inbox", label: "Inbox", icon: Inbox, key: "3" },
   { path: "/chat", label: "Chat", icon: MessageSquare, key: "4" },
   { path: "/settings", label: "Settings", icon: Settings, key: "5" },
+  { path: "/activity", label: "Activity", icon: Activity, key: "6" },
 ];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
