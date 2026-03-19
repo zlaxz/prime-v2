@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-const GOOGLE_CLIENT_ID = "564767116409-35qpmdqobs6vul6ppop00l9kqkejgu26.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "1023746337718-6p4k87pb0tf8mf8qgkkvtreg26pt42sj.apps.googleusercontent.com";
 
 const PROJECT_COLORS = [
   "#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6",
