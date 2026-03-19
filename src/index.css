@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Arc Reactor color tokens */
+    --arc-300: 187 100% 60%;
+    --arc-500: 187 100% 50%;
+    --arc-600: 192 100% 45%;
+    --arc-700: 197 100% 39%;
+
+    /* Arc Reactor hex tokens */
+    --arc-reactor-bg: #0a0a0a;
+    --arc-reactor-bg-light: #1a1a1a;
+    --arc-reactor-accent: #00d9ff;
+    --arc-reactor-accent-dark: #00b8d4;
+    --arc-reactor-text: #e0e0e0;
+    --arc-reactor-text-secondary: #b0b0b0;
+    --arc-reactor-glow-blur: 20px;
+    --arc-reactor-glow-opacity: 0.15;
+
+    /* shadcn/ui tokens — mapped to Arc Reactor */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 88%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 88%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 88%;
+    --primary: 187 100% 50%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 88%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 69%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 88%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 187 100% 50%;
+    --radius: 0.75rem;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 6%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 187 100% 50%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 88%;
+    --sidebar-border: 0 0% 14%;
+    --sidebar-ring: 187 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  }
+}
+
+/* Arc Reactor glow effect */
+.arc-reactor-glow {
+  background: radial-gradient(
+    ellipse 800px 600px at center,
+    rgba(0, 217, 255, var(--arc-reactor-glow-opacity)) 0%,
+    transparent 70%
+  );
+  animation: arc-reactor-pulse 4s ease-in-out infinite;
+}
+
+@keyframes arc-reactor-pulse {
+  0% { opacity: 0.15; }
+  50% { opacity: 0.25; }
+  100% { opacity: 0.15; }
+}
+
+/* Glow hover for cards and interactive elements */
+.arc-reactor-hover-glow:hover {
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.4),
+              inset 0 0 20px rgba(0, 217, 255, 0.1);
+}
+
+/* Glowing text */
+.arc-reactor-glow-text {
+  color: var(--arc-reactor-accent);
+  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6),
+               0 0 16px rgba(0, 217, 255, 0.3);
+}
+
+/* Arc Reactor button */
+.arc-reactor-button {
+  background-color: transparent;
+  border: 1px solid var(--arc-reactor-accent);
+  color: var(--arc-reactor-accent);
+  position: relative;
+  overflow: hidden;
+  transition: all 300ms ease;
+}
+
+.arc-reactor-button:hover {
+  background-color: rgba(0, 217, 255, 0.1);
+  border-color: var(--arc-reactor-accent);
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.4),
+              inset 0 0 15px rgba(0, 217, 255, 0.05);
+  text-shadow: 0 0 8px rgba(0, 217, 255, 0.6);
+}
+
+.arc-reactor-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.3), transparent);
+  transition: left 500ms;
+  pointer-events: none;
+}
+
+.arc-reactor-button:hover::before {
+  left: 100%;
+}
+
+/* Arc Reactor input */
+.arc-reactor-input {
+  background-color: var(--arc-reactor-bg-light);
+  border: 1px solid var(--arc-reactor-accent-dark);
+  color: var(--arc-reactor-text);
+  transition: all 300ms ease;
+}
+
+.arc-reactor-input:focus {
+  background-color: var(--arc-reactor-bg-light);
+  border-color: var(--arc-reactor-accent);
+  color: var(--arc-reactor-text);
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.4),
+              inset 0 0 8px rgba(0, 217, 255, 0.1);
+  outline: none;
+}
+
+.arc-reactor-input::placeholder {
+  color: var(--arc-reactor-text-secondary);
+}
+
+/* Arc Reactor message bubble */
+.arc-reactor-message {
+  background: linear-gradient(135deg,
+    rgba(0, 217, 255, 0.05) 0%,
+    rgba(0, 217, 255, 0.02) 100%
+  );
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  color: var(--arc-reactor-text);
+  transition: all 300ms ease;
+}
+
+.arc-reactor-message:hover {
+  background: linear-gradient(135deg,
+    rgba(0, 217, 255, 0.1) 0%,
+    rgba(0, 217, 255, 0.05) 100%
+  );
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.2);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--arc-reactor-bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--arc-reactor-accent), var(--arc-reactor-accent-dark));
+  border-radius: 5px;
+  box-shadow: inset 0 0 6px rgba(0, 217, 255, 0.3);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--arc-reactor-accent), var(--arc-reactor-accent-dark));
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.6), inset 0 0 6px rgba(0, 217, 255, 0.5);
+}
