@@ -26,27 +26,16 @@ export function useAuth() {
         const email = session.user?.email;
         const userId = session.user?.id;
         if (email && userId) {
-          // Save email account
-          await supabase.from("email_accounts").upsert(
+          // Save to google_tokens (used by process-emails edge function)
+          const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
+          await supabase.from("google_tokens").upsert(
             {
               user_id: userId,
-              email_address: email,
               access_token: session.provider_token,
               refresh_token: session.provider_refresh_token ?? null,
-              enabled: true,
+              token_expires_at: expiresAt,
             },
-            { onConflict: "user_id,email_address" }
-          );
-          // Save calendar account
-          await supabase.from("calendar_accounts").upsert(
-            {
-              user_id: userId,
-              email_address: email,
-              access_token: session.provider_token,
-              refresh_token: session.provider_refresh_token ?? null,
-              enabled: true,
-            },
-            { onConflict: "user_id,email_address" }
+            { onConflict: "user_id" }
           );
         }
       }
