@@ -4,10 +4,15 @@ import type { User, Session } from "@supabase/supabase-js";
 
 async function saveGoogleTokens(session: Session) {
   const userId = session.user?.id;
-  const providerToken = session.provider_token;
-  const refreshToken = session.provider_refresh_token;
+  // Try session first, fall back to sessionStorage (captured in main.tsx)
+  const providerToken = session.provider_token || sessionStorage.getItem("prime_provider_token");
+  const refreshToken = session.provider_refresh_token || sessionStorage.getItem("prime_provider_refresh_token");
 
   if (!userId || !providerToken) return;
+
+  // Clear sessionStorage after use
+  sessionStorage.removeItem("prime_provider_token");
+  sessionStorage.removeItem("prime_provider_refresh_token");
 
   const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
 
