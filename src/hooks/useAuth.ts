@@ -1,17 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import type { User, Session } from "@supabase/supabase-js";
+
+async function saveGoogleTokens(session: Session) {
+  const userId = session.user?.id;
+  const providerToken = session.provider_token;
+  const refreshToken = session.provider_refresh_token;
+
+  if (!userId || !providerToken) return;
+
+  const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
+
+  const { error } = await supabase.from("google_tokens").upsert(
+    {
+      user_id: userId,
+      access_token: providerToken,
+      refresh_token: refreshToken ?? null,
+      token_expires_at: expiresAt,
+    },
+    { onConflict: "user_id" }
+  );
+
+  if (error) {
+    console.error("Failed to save Google tokens:", error);
+  } else {
+    console.log("Google tokens saved for", session.user?.email);
+  }
+}
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const tokenSaved = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Save tokens from initial session (after OAuth redirect)
+      if (session?.provider_token && !tokenSaved.current) {
+        tokenSaved.current = true;
+        saveGoogleTokens(session);
+      }
     });
 
     const {
@@ -21,23 +54,10 @@ export function useAuth() {
       setUser(session?.user ?? null);
       setLoading(false);
 
-      // Auto-save Google tokens on sign-in
-      if (_event === "SIGNED_IN" && session?.provider_token) {
-        const email = session.user?.email;
-        const userId = session.user?.id;
-        if (email && userId) {
-          // Save to google_tokens (used by process-emails edge function)
-          const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
-          await supabase.from("google_tokens").upsert(
-            {
-              user_id: userId,
-              access_token: session.provider_token,
-              refresh_token: session.provider_refresh_token ?? null,
-              token_expires_at: expiresAt,
-            },
-            { onConflict: "user_id" }
-          );
-        }
+      // Also try on auth state changes
+      if (session?.provider_token && !tokenSaved.current) {
+        tokenSaved.current = true;
+        saveGoogleTokens(session);
       }
     });
 
@@ -70,6 +90,7 @@ export function useAuth() {
   };
 
   const signOut = async () => {
+    tokenSaved.current = false;
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
