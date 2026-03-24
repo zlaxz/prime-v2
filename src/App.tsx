@@ -16,8 +16,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
   // Don't redirect to /auth if we're processing an OAuth callback
-  // Supabase puts tokens in the URL hash after Google sign-in
-  const isOAuthCallback = window.location.hash.includes("access_token") ||
+  // PKCE flow: Supabase puts ?code= in query string
+  // Implicit flow: tokens in URL hash
+  const isOAuthCallback = window.location.search.includes("code=") ||
+    window.location.hash.includes("access_token") ||
     window.location.hash.includes("error_description");
 
   if (loading || isOAuthCallback) {

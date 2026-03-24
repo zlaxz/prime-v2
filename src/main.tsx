@@ -8,11 +8,8 @@ import "./index.css";
 // Capture Google OAuth tokens BEFORE React mounts
 const hash = window.location.hash;
 const search = window.location.search;
-// Debug: log what comes back from OAuth
-if (hash.length > 1 || search.includes("code=")) {
-  console.log("[Prime OAuth Debug] hash:", hash.substring(0, 200));
-  console.log("[Prime OAuth Debug] search:", search.substring(0, 200));
-}
+// Debug: always log on page load
+console.log("[Prime] page load", { hash: hash.substring(0, 100), search: search.substring(0, 100), href: window.location.href.substring(0, 150) });
 if (hash.includes("provider_token=")) {
   const params = new URLSearchParams(hash.substring(1));
   const providerToken = params.get("provider_token");

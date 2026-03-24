@@ -40,7 +40,8 @@ export function useAuth() {
   const tokenSaved = useRef(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      console.log("[Prime Auth] getSession:", { user: session?.user?.email, error: error?.message, hasProviderToken: !!session?.provider_token });
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -55,6 +56,7 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("[Prime Auth] onAuthStateChange:", { event: _event, user: session?.user?.email, hasProviderToken: !!session?.provider_token });
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
