@@ -15,9 +15,14 @@ import CalendarCallback from "@/pages/CalendarCallback";
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
 
-  if (loading) {
+  // Don't redirect to /auth if we're processing an OAuth callback
+  // Supabase puts tokens in the URL hash after Google sign-in
+  const isOAuthCallback = window.location.hash.includes("access_token") ||
+    window.location.hash.includes("error_description");
+
+  if (loading || isOAuthCallback) {
     return (
-      <div className="flex h-screen items-center justify-center bg-zinc-900">
+      <div className="flex h-screen items-center justify-center" style={{ backgroundColor: "var(--arc-reactor-bg)" }}>
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "var(--arc-reactor-accent)", borderTopColor: "transparent" }} />
       </div>
     );
