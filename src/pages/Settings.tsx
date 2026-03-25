@@ -43,8 +43,7 @@ function startCalendarOAuth() {
 export default function Settings() {
   const { user } = useAuth();
   const { projects, createProject, updateProject, deleteProject } = useProjects();
-  const [emailAccounts, setEmailAccounts] = useState<any[]>([]);
-  const [calendarAccounts, setCalendarAccounts] = useState<any[]>([]);
+  const [googleToken, setGoogleToken] = useState<any>(null);
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectColor, setNewProjectColor] = useState("#8b5cf6");
   const [editingProject, setEditingProject] = useState<string | null>(null);
@@ -53,12 +52,8 @@ export default function Settings() {
 
   useEffect(() => {
     const fetchAccounts = async () => {
-      const [emailRes, calRes] = await Promise.all([
-        supabase.from("email_accounts").select("*"),
-        supabase.from("calendar_accounts").select("*"),
-      ]);
-      if (emailRes.data) setEmailAccounts(emailRes.data);
-      if (calRes.data) setCalendarAccounts(calRes.data);
+      const { data } = await supabase.from("google_tokens").select("*").maybeSingle();
+      if (data) setGoogleToken(data);
     };
     fetchAccounts();
   }, []);
@@ -87,52 +82,23 @@ export default function Settings() {
 
       {/* Connected Accounts */}
       <section className="mb-8">
-        <h3 className="mb-3 text-sm font-medium text-zinc-400">Connected Accounts</h3>
+        <h3 className="mb-3 text-sm font-medium" style={{ color: "var(--arc-reactor-text-secondary)" }}>Connected Accounts</h3>
         <div className="space-y-3">
-          <Card className="flex items-center gap-3 border-zinc-700 bg-zinc-800 p-4">
-            <Mail className="h-5 w-5 text-zinc-400" />
+          <Card className="flex items-center gap-3 p-4" style={{ backgroundColor: "var(--arc-reactor-bg-light)", border: "1px solid rgba(0,217,255,0.15)" }}>
+            <Mail className="h-5 w-5" style={{ color: "var(--arc-reactor-accent)" }} />
             <div className="flex-1">
-              <p className="text-sm font-medium text-zinc-200">Gmail</p>
-              {emailAccounts.length > 0 ? (
-                <p className="text-xs text-green-400">
+              <p className="text-sm font-medium" style={{ color: "var(--arc-reactor-text)" }}>Gmail & Calendar</p>
+              {googleToken ? (
+                <p className="text-xs" style={{ color: "#22c55e" }}>
                   <CheckCircle className="mr-1 inline h-3 w-3" />
-                  Connected ({emailAccounts[0].email_address ?? emailAccounts[0].email ?? "account"})
+                  Connected via Google Sign-In ({user?.email})
                 </p>
               ) : (
-                <p className="text-xs text-zinc-500">Not connected</p>
-              )}
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-zinc-700"
-              onClick={startGmailOAuth}
-            >
-              {emailAccounts.length > 0 ? "Reconnect" : "Connect"}
-            </Button>
-          </Card>
-
-          <Card className="flex items-center gap-3 border-zinc-700 bg-zinc-800 p-4">
-            <Calendar className="h-5 w-5 text-zinc-400" />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-zinc-200">Google Calendar</p>
-              {calendarAccounts.length > 0 ? (
-                <p className="text-xs text-green-400">
-                  <CheckCircle className="mr-1 inline h-3 w-3" />
-                  Connected
+                <p className="text-xs" style={{ color: "var(--arc-reactor-text-secondary)" }}>
+                  Sign out and sign back in with Google to connect
                 </p>
-              ) : (
-                <p className="text-xs text-zinc-500">Not connected</p>
               )}
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-zinc-700"
-              onClick={startCalendarOAuth}
-            >
-              {calendarAccounts.length > 0 ? "Reconnect" : "Connect"}
-            </Button>
           </Card>
         </div>
       </section>
